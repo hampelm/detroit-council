@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load hash %}
+
+{% block title %}Member{% endblock %}
+
+{% block content %}
+
+<table>
+{% for block in blocks %}
+	<tr>
+		<td>{{block.type}}</td>
+		<td>{{block.date}}</td>
+		<td>{% for contract in block.contracts %}
+			<a href="/contract/{{contracts}}">{{contract}}</a><br />
+		{% endfor %}
+		</td>
+		<td>
+			
+		</td>
+		
+	
+	</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

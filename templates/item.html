@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load hash %}
+{% load humanize %}
+
+{% block title %}Detroit Council Docs{% endblock %}
+
+{% block content %}
+<h2>Meeting: <a href='{% url meeting item.date.year, item.date.month, item.date.day %}'>
+	{{ item.date.year }}
+	{{ item.date.month }}
+	{{ item.date.day }}
+</a>
+</h2>
+
+
+{% for line in item.lines %}
+	{{line}}<br />
+{% endfor %}
+
+{% endblock %}

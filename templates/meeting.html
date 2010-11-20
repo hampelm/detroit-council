@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load hash %}
+{% load humanize %}
+
+{% block title %}Detroit Council Docs{% endblock %}
+
+{% block content %}
+<h2>{{date}}</h2>
+
+<table>
+{% for block in blocks %}
+	<tr>
+		<td><a href="{{block|hash:"_id"}}">{{block.lines.0}}</a></td>
+		<td><span class="type">{{block.type}}</span></td>
+		<td>
+			<span class="score">{{block.yeas|length}} - {{block.nays|length}}</span>
+		</td>
+	</tr>
+	
+	{% if block.type == "contract" %}
+	<tr>		
+			<td colspan="3">
+				{% if block.cost %}
+					<span class="cost">${{block.cost|intcomma}}</span>
+				{% endif %}
+				With {{block.address}}</td>
+	</tr>
+	{% endif %}
+	
+{% endfor %}
+</table>
+{% endblock %}

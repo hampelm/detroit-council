@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load hash %}
+
+{% block title %}Detroit Council Docs{% endblock %}
+
+{% block content %}
+<table>
+{% for block in blocks %}
+		<a href="/meeting/{{block.year}}/{{block.month}}/{{block.day}}">{{block|date:"F j Y"}}</a><br />
+{% endfor %}
+</table>
+
+{% endblock %}
