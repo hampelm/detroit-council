@@ -7,13 +7,17 @@
 {% block content %}
 <h2>{{date}}</h2>
 
-<table>
+<p>$<strong>{{total_spent|intcomma}}</strong> in contracts discussed</p>
+
+<table>	
 {% for block in blocks %}
-	<tr>
+	<tr class="sep">
 		<td><a href="{{block|hash:"_id"}}">{{block.lines.0}}</a></td>
 		<td><span class="type">{{block.type}}</span></td>
 		<td>
-			<span class="score">{{block.yeas|length}} - {{block.nays|length}}</span>
+			{% if block.yeas or block.nays %}
+				<span class="score">{{block.yeas|length}} - {{block.nays|length}}</span>
+			{% endif %}
 		</td>
 	</tr>
 	
@@ -23,7 +27,10 @@
 				{% if block.cost %}
 					<span class="cost">${{block.cost|intcomma}}</span>
 				{% endif %}
-				With {{block.address}}</td>
+				{% if block.address %}
+					With {{block.address}}
+				{% endif %}
+				</td>
 	</tr>
 	{% endif %}
 	

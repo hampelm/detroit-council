@@ -17,6 +17,10 @@ urlpatterns = patterns('',
     url(r'^meeting/(\d{4})/(\d+)/(\d+)/$', meeting, name="meeting"),
     url(r'^meeting/(\d{4})/(\d+)/(\d+)/(\w+)$', item, name="item"),
 
+    url(r'^page/(\d+)$', page, name="page"),
+
+    url(r'^search/$', search, name="search"),
+
     # Uncomment the admin/doc line below to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

@@ -1,6 +1,8 @@
 import sys
 import re
 
+from django.template.defaultfilters import slugify
+
 
 '''
 Regular expression patterns
@@ -70,7 +72,7 @@ def extract_votes(block):
         if member in nays:
             no_votes.append(member)
     '''
-    votes_start = block['string'].find('Adopted as follows:')
+    votes_start = block['string'].find('dopted as follows:')
     if votes_start == -1:
         # there is no vote in this block
         return block
@@ -115,11 +117,11 @@ def extract_votes(block):
         
         
     # now store them by voter:
-  #  block['votes_by_member'] = {}
- #   for member in yeas:
- #       block['votes_by_member'][member] = 'Yea'
- #   for member in nays:
- #       block['votes_by_member'][member] = 'Nay'
+    block['votes_by_member'] = {}
+    for member in yeas:
+        block['votes_by_member'][slugify(member)] = 'Yea'
+    for member in nays:
+        block['votes_by_member'][slugify(member)] = 'Nay'
         
     block['yeas'] = yeas
     block['nays'] = nays

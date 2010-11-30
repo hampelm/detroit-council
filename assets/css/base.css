@@ -133,10 +133,9 @@ h1, h2, h3, h4, h5, h6 {
 .rlist {
     width: 100%;
 }
-.rlist td {
-    border-bottom:1px dotted #eee; 
-    padding-bottom:4px;
-    padding-top:4px;
+.sep td {
+    border-top:1px dotted #eee; 
+    padding-top:6px;
 }
 td.title, td.date, td.attachments, td.poster {
     padding-right: 1.5em;

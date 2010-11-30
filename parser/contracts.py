@@ -37,6 +37,7 @@ def extract_contract(block):
         # an ammended contract.
         block['type'] = 'contract'
         block['address'] = find_address(block)
+        block['cost'] = dollars[1] # it's probably the second.
         block = extract_votes(block)
         block['review'] = True
         

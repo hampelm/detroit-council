@@ -12,6 +12,9 @@
 </a>
 </h2>
 
+<h2>Page: <a href="{% url page item.page_number %}">{{item.page_number}}</a></h2>
+
+<h3>This is the full text of the item:</h3>
 
 {% for line in item.lines %}
 	{{line}}<br />

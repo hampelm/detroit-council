@@ -4,6 +4,13 @@
 {% block title %}Detroit Council Docs{% endblock %}
 
 {% block content %}
+
+<form action="search" method="get" accept-charset="utf-8">
+	
+	{{search}}
+	<p><input type="submit" value="Search &rarr;"></p>
+</form>
+
 <table>
 {% for block in blocks %}
 		<a href="/meeting/{{block.year}}/{{block.month}}/{{block.day}}">{{block|date:"F j Y"}}</a><br />

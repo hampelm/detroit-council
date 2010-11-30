@@ -1,6 +1,7 @@
 import codecs
 import linecache 
 import re
+import solr
 import sys
 import time
 
@@ -44,13 +45,15 @@ def line_is_separator(line, idx):
     Here are a couple tests that try to find that.
     '''
     if 'Nays -- None' in line:
-        next = linecache.getline(filename, idx+1)
+        next = linecache.getline(filename, idx+2)        
         if 'WAIVER' not in next:
-            return True
+            return False
         
     return False
-
-
+    # http://127.0.0.1:8000/page/168
+    # http://127.0.0.1:8000/page/170
+    
+    
 def skip_next():
     return False
 
@@ -100,13 +103,10 @@ for idx, line in enumerate(f):
                 datebits = line.split(' ')
                 datestr = datebits[0].lstrip() + ' ' + datebits[1] + ' ' + datebits[3].rstrip()
                 print datestr
-                print type(datestr)
                 date = parser.parse(datestr)
                 
-                
-                
                 match =  match.group(1)
-                page_number = match.split(' ')[0]
+                page_number = int(match.split(' ')[0])
                 skip_next = True # The next line is some gibberish
         else:
             '''
@@ -226,6 +226,17 @@ collection.remove({}) # clear out all the old data
 for block in text:
     block = repair_text(block)
     collection.insert(block)
+    
+    
+# Save the stuff to solr
+batch = []
+everything = collection.find()
+for elt in everything:
+    batch.append({'id': elt['_id'], 'features': elt['string'] })
+    
+s = solr.SolrConnection('http://localhost:8983/solr')
+s.delete(queries=['id:*'])
+s.add_many(batch)
    
    
 # Generate the mapping of members to slugs
