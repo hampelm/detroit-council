@@ -8,6 +8,7 @@ from django.template.defaultfilters import slugify
 Regular expression patterns
 '''
 # Identifies strings that represent money.
+# Pattern is $123.00 (with possibility of commas, eg $23,123,456.23)
 MONEY_PATTERN = re.compile(r'\$\d+[0123456789,]+\.\d{2}')
 
 
@@ -77,7 +78,6 @@ def extract_votes(block):
         # there is no vote in this block
         return block
     
-    # Separate the yeas from the nays
     # Cut out some excess text
     votes_text = block['string'][votes_start:]
     votes_text = name_cleanup(votes_text)
@@ -94,7 +94,6 @@ def extract_votes(block):
     if nays_start is not -1:
         nays_text = votes_text[nays_start:]
         nays_text = nays_text.split('--')[1]
-    
     
     if 'None' not in nays_text:
         nays = nays_text.split(',')

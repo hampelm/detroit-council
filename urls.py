@@ -15,7 +15,8 @@ urlpatterns = patterns('',
    # (r'^meeting/(?P<y>\d{4})/(?P<m>]\d{2})/(?P<d>\d{2})/$', meeting, "meeting"),
    
     url(r'^meeting/(\d{4})/(\d+)/(\d+)/$', meeting, name="meeting"),
-    url(r'^meeting/(\d{4})/(\d+)/(\d+)/(\w+)$', item, name="item"),
+  #  url(r'^meeting/(\d{4})/(\d+)/(\d+)/(\w+)$', item, name="item"),
+    url(r'^item/(\w+)$', item, name="sitem"),
 
     url(r'^page/(\d+)$', page, name="page"),
 

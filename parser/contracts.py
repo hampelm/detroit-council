@@ -17,36 +17,36 @@ def extract_contract(block):
     block['address'] = find_address(block)
   
     #extract the dollar amounts
-    dollars = []
+    dollar_ammounts = []
     for m in helpers.MONEY_PATTERN.findall(block['string']):
         m = m.replace('$','')
         m = m.replace(',','')
         m = float(m)
-        dollars.append(m)
+        dollar_ammounts.append(m)
     
-    if len(dollars) > 2:
-        # If there are more than two dollar amounts, this probably is 
-        # being sent off to committee.
+    # If there are more than two dollar amounts, this probably is 
+    # being sent off to committee.
+    if len(dollar_ammounts) > 2:
         block['type'] = 'to committee'
     
         # TODO -- parse out what committee.
 
-    elif len(dollars) == 2:
+    elif len(dollar_ammounts) == 2:
         # If there are two dollar amounts, it needs human intervention
         # to know what's up. It could be two contracts for referral, or
         # an ammended contract.
         block['type'] = 'contract'
         block['address'] = find_address(block)
-        block['cost'] = dollars[1] # it's probably the second.
+        block['cost'] = dollar_ammounts[1] # it's probably the second.
         block = extract_votes(block)
         block['review'] = True
         
     
-    elif len(dollars) == 1:
+    elif len(dollar_ammounts) == 1:
         # One ammount almost certainly means its a contract.
         block['type'] = 'contract'
         block['address'] = find_address(block)
-        block['cost'] = dollars[0]
+        block['cost'] = dollar_ammounts[0]
         block = extract_votes(block)
     
     else:
@@ -57,6 +57,6 @@ def extract_contract(block):
     #if ('BEING REFERRED' in block_as_str) or ('TO BE REFERRED' in block_as_str) or ('WERE REFERRED' in block_as_str):
     #    block['type'] = 'referral'
 
-    block['dollars'] = dollars
+    block['dollar_ammounts'] = dollar_ammounts
     
     return block

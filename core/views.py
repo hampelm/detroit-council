@@ -27,6 +27,7 @@ def home(request):
     
     collection = connection()
     blocks = collection.distinct('date')
+    
     response['blocks'] = blocks
     
     response['search'] = SearchForm()
@@ -36,15 +37,24 @@ def home(request):
     
 
 def search(request, q=""):
+    collection = connection()
+    
     if request.method == "GET":
         form = SearchForm(request.GET)
         if form.is_valid():
             s = solr.SolrConnection('http://localhost:8983/solr')
             raw_results = s.query('features:' + str(form['q']), highlight=True, fields="features,id,snippets")
             results = [result for result in raw_results]
+            full_objects = []
+
             for elt in results:
-                print elt
-            return render_to_response('search.html', {'results':results})
+                obj = collection.find_one( {'_id': objectid.ObjectId(elt['id'])})
+                full_objects.append(obj)
+                
+                
+            return render_to_response('search.html', {'results':full_objects})
+            
+    return home(request)
 
 
 def member(request, member):
@@ -79,7 +89,7 @@ def meeting(request, y, m, d):
     return render_to_response('meeting.html', response)
     
     
-def item(request, y, m, d, item):
+def item(request, item):
     collection = connection()
     block = collection.find_one( {'_id': objectid.ObjectId(item)})
     print block
@@ -108,12 +118,12 @@ def contract(request, contract):
 
     collection = connection()
     blocks = collection.find( { 'contracts':contract}, sort=[('date', ASCENDING)] )
-   # 
-   # calais = Calais(settings.CALAIS, submitter="hello world")
-   # 
-   # newbloks = []
-   # for block in blocks:
-   #     block['entities'] = calais.analyze(block['string']).entities
-   #     newbloks.append(block)
+   
+    calais = Calais(settings.CALAIS, submitter="hello world")
     
-    return render_to_response('item.html', {'blocks': blocks})
+    newbloks = []
+    for block in blocks:
+        block['entities'] = calais.analyze(block['string']).entities
+        newbloks.append(block)
+    
+    return render_to_response('item.html', {'blocks': newbloks})
