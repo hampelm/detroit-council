@@ -5,18 +5,65 @@
 {% block title %}Detroit Council Docs{% endblock %}
 
 {% block content %}
+<h1>
 	{{ item.date.year }}
 	{{ item.date.month }}
 	{{ item.date.day }}
-</a>
-</h2>
+</h1>
 
-<h2>Page: <a href="{% url page item.page_number %}">{{item.page_number}}</a></h2>
+<div id="body">
 
-<h3>This is the full text of the item:</h3>
+<h3 id="item-type">Item classified as: <strong>{{item.type}}</strong></h3>
+
+<h3 id="jcc-page">JCC page: <a href="{% url page item.page_number %}">{{item.page_number}}</a></h3>
+
+<div id="votes">
+<h3>Votes:</h3>
+{% if item.yeas %}
+	<strong>Yeas:</strong> 
+	{% for vote in item.yeas %}
+		<a href="{% url member vote|slugify %}">{{vote}}</a>
+	{% endfor %}
+{% endif %}
+{% if item.nays %}
+	{% for vote in item.nays %}
+		<a href="{% url member vote|slugify %}">{{vote}}</a>
+	{% endfor %}
+{% endif %}
+</div>
 
 {% for line in item.lines %}
 	{{line}}<br />
 {% endfor %}
+</div>
 
+
+
+<div id="mnav">
+	<ul>
+	{% for item in blocks %}
+		<li class="{% if item.selected %}selected{% endif %}">
+			<a href="/item/{{item|hash:"_id"}}">{{item.lines.0}}</a>
+			{% if item.type != 'unknown' %}
+				<br /><span class="type">{{item.type}}</span>
+			{% endif %}
+			{% if item.cost %}
+				<span class="cost">${{item.cost|intcomma}}</span>
+			{% endif %}
+			{% if item.cost and item.address %}
+				with
+			{% endif %}
+			{% if item.address %}
+				{{item.address}}
+			{% endif %}
+			{% if item.details %}
+				{{details}}
+			{% endif %}
+			
+			
+			
+		</li>
+	{% endfor %}
+	</ul>
+</ul>
 {% endblock %}

@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     # Example:
     ('^$', home),
 
-    (r'^member/(?P<member>[-\w]+)/$', member),
+    url(r'^member/(?P<member>[-\w]+)$', member, name="member"),
     (r'^contract/(?P<contract>[-\d]+)/$', contract),
    # (r'^meeting/(?P<y>\d{4})/(?P<m>]\d{2})/(?P<d>\d{2})/$', meeting, "meeting"),
    
@@ -21,6 +21,9 @@ urlpatterns = patterns('',
     url(r'^page/(\d+)$', page, name="page"),
 
     url(r'^search/$', search, name="search"),
+    
+    url(r'^test/$', test, name="search"),
+    
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),

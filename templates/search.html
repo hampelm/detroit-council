@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load hash %}
+
+{% block title %}Detroit Council Docs{% endblock %}
+
+{% block content %}
+
+<form action="search" method="get" accept-charset="utf-8">
+	
+	{{search}}
+	<p><input type="submit" value="Search &rarr;"></p>
+</form>
+
+<table>
+{% for block in results %}
+	<p><a href="{% url sitem block|hash:'_id' %}{{block.id}}">see item</a></p>
+	<p>{{block.features}}</p>
+{% endfor %}
+</table>
+
+{% endblock %}

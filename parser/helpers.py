@@ -4,6 +4,7 @@ import re
 from django.template.defaultfilters import slugify
 
 
+DIRECTIONS = ['N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE']
 '''
 Regular expression patterns
 '''
@@ -94,7 +95,7 @@ def extract_votes(block):
     if nays_start is not -1:
         nays_text = votes_text[nays_start:]
         nays_text = nays_text.split('--')[1]
-    
+
     if 'None' not in nays_text:
         nays = nays_text.split(',')
     else:

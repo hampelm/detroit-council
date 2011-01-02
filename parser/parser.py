@@ -9,18 +9,15 @@ from pymongo import Connection
 from dateutil import parser
 from django.template.defaultfilters import slugify
 
-from helpers import *
+from blockparser import extract_planning, buildings_and_safety
 from contracts import extract_contract
+from helpers import *
 from resolutions import extract_resolution
 filename = '2009council.txt'
 f = open(filename, 'rb')
 
 text = []
 text_as_str = []
-block = {}
-block['lines'] = []
-block['page_number'] = 1
-
 
 def setattr(block_idx, key, val):
     text[block_idx][key] = val
@@ -33,7 +30,7 @@ def line_is_separator(line, idx):
     * Dashes (the most common)
     * Page breaks (harder to detect)
     '''
-    tests = ["----------\n", ' PUBLIC COMMENTS']
+    tests = ["----------\n", ' PUBLIC COMMENTS', 'CITY COUNCIL------', 'CITY COUNCIL------']
     for test in tests:
         if line == test:
             return True
@@ -103,85 +100,101 @@ def extract_invocation(block):
     
     return invocation
 
-
 '''
-Break the file into chunks, and store them in text[] 
-Chunks are delineated in the text by separators (see line_is_separator)
-Each chunk should be a distinct meeting item
+Break the file into blocks, and store them in text[] 
+Blocks are delineated in the text by separators (see line_is_separator)
+Each block should be a distinct meeting item
 Also extracts metadata, like page numbers and dates.
+
+Block format:
+    lines: a list of each line
+    string: all lines as one string
+    page_number
+    date (datetime)
+    type (to committee, resolution, etc)
+
 '''
-page_number = 1
-skip_next = False
-date = ''
-for idx, line in enumerate(f):
-    line = line.decode('iso-8859-1')
+def first_pass(f, text):
+    page_number = 1
+    skip_next = False
+    date = ''
     
-    if line_is_separator(line, idx):
-        '''
-        If the line is a divider, we are at the end of a block.
-        Close this one off and save it to the text.
-        ''' 
-        if line == ' PUBLIC COMMENTS':
-            block['lines'].append(line.rstrip('\n').lstrip())
-
-        block['type'] = 'unknown' # mark as unknown for later processing
-        block['date'] = date
-        
-        text.append(block)
-        block = {}
-        block['lines'] = []
-        block['page_number'] = page_number
-        
-    else:    
-        '''
-        We are already inside a block, or have just begun a new one.
-        
-        First, check if the line is a dateline
-        Datelines have the pattern [page number][space][year]
-        eg
-        November 20 2727 2009
-        where 2727 is the page number
-        '''
-        
-        if is_date(line):
-            date = extract_date(line)
-
-            try:
-                page_number = line.split(' ')[-2]
-                page_number = int(page_number)
-            except:
-                pass
-            
-            skip_next = True # The next line is some gibberish
-            
-        else:
+    block = {}
+    block['lines'] = []
+    block['page_number'] = 1
+    
+    for idx, line in enumerate(f):
+        line = line.decode('iso-8859-1')
+    
+        if line_is_separator(line, idx):
             '''
-            This is not a dateline.
+            If the line is a divider, we are at the end of a block.
+            Close this one off and save it to the text.
+            ''' 
+            if line == ' PUBLIC COMMENTS':
+                block['lines'].append(line.rstrip('\n').lstrip())
+
+            block['type'] = 'unknown' # mark as unknown for later processing
+            block['date'] = date
+            block['title'] = block['lines'][0]
+        
+            text.append(block)
+            block = {}
+            block['lines'] = []
+            block['page_number'] = page_number
+        
+        else:    
             '''
+            We are already inside a block, or have just begun a new one.
+        
+            First, check if the line is a dateline
+            Datelines have the pattern [page number][space][year]
+            eg
+            November 20 2727 2009
+            where 2727 is the page number
+            '''
+        
+            if is_date(line):
+                date = extract_date(line)
+
+                try:
+                    page_number = line.split(' ')[-2]
+                    page_number = int(page_number)
+                except:
+                    pass
             
+                skip_next = True # The next line is some gibberish
             
-            # Make sure this isn't the beginning of a meeting.
-            if (line == "Journal of the City Council") or (line == "(OFFICIAL)"):
-                skip_next = True
-            
-            if skip_next:
-                # do nothing.
-                # reset the skip_next so we continue.
-                skip_next = False 
-                    
             else:
-                # Make sure we cut out all the errant printers marks
-                printers_pattern = r'(^\d{3}\d+ .+ Page)'
-                r = re.compile(printers_pattern)
-                match = r.search(line)
-                if match:
-                    match = match.group(1)
+                '''
+                This is not a dateline.
+                '''
+            
+            
+                # Make sure this isn't the beginning of a meeting.
+                if (line == "Journal of the City Council") or (line == "(OFFICIAL)"):
+                    skip_next = True
+            
+                if skip_next:
+                    # do nothing.
+                    # reset the skip_next so we continue.
+                    skip_next = False 
+                    
                 else:
-                    '''
-                    If the line is not a dateline, printers mark, or some
-                    other gibberish, it gets imported
-                    '''
-                    block['lines'].append(line.rstrip('\n'))
+                    # Make sure we cut out all the errant printers marks
+                    printers_pattern = r'(^\d{3}\d+ .+ Page)'
+                    r = re.compile(printers_pattern)
+                    match = r.search(line)
+                    if match:
+                        match = match.group(1)
+                    else:
+                        '''
+                        If the line is not a dateline, printers mark, or some
+                        other gibberish, it gets imported
+                        '''
+                        block['lines'].append(line.rstrip('\n'))
+                        
+    return text
                 
                 
     
@@ -191,103 +204,158 @@ line is combined into one big string.
 
 TODO: repair hyphenation
 '''
-for block_index, block in enumerate(text):
-    block_text_as_str = ''
-    for line in block['lines']:
-        block_text_as_str = block_text_as_str + ' ' + line
+def block_string_generator(text):
+    for block_index, block in enumerate(text):
+        block_text_as_str = ''
+        for line in block['lines']:
+            block_text_as_str = block_text_as_str + ' ' + line
         
-    text[block_index]['string'] = block_text_as_str
-
-
-
+        text[block_index]['string'] = block_text_as_str
+        
+    return text
+    
 '''
 MAIN SCANNER
 
 Parse through the block to attempt to detect what type of
 information it contains (invocation, resolutions, ...)
 '''
-for block_index, block in enumerate(text):
+def scanner(text):
+    for block_index, block in enumerate(text):
     
-    '''
-    First we see what we can detect from the block as
-    one big string.
-    '''
-    block_as_str = text[block_index]['string']
-    
-    
-    '''
-    CLOSED SESSIONS
-    We can't get much from these.
-    '''
-    if 'closed session' in block_as_str:
-        setattr(block_index, 'type', 'closed session') 
-        block = extract_votes(block)
-    
-    
-    if 'Contract No.' in block_as_str:
         '''
-        CONTRACTS
-        Having 'Contract No.' in the string means this might be a contract.
-        but it also could be a set of contracts being passed off to a 
-        committee for evaluation     
-        '''    
-        block = extract_contract(block)  
-        text[block_index] = block 
+        First we see what we can detect from the block as
+        one big string.
+        '''
+        block_as_str = text[block_index]['string']
         
-    elif ('RESOLVED, Th' in block_as_str) or ('Resolved, Th' in block_as_str):
-        '''
-        GENERAL RESOLUTIONS
-        These have "RESOLVED, ..." in them.
-        '''
         
-        block = extract_resolution(block) 
         
-    else:                
         '''
-        LINE BY LINE PARSING
-        After seeing what we can get from the block as one big string,
-        we go line by line to try to suss out its content.
+        PERMITS
         '''
-        for line in block['lines']:
+        if block['lines'][0] == 'Permit':
+            setattr(block_index, 'type', 'permit') 
+            block = extract_votes(block)
+    
         
+        '''
+        P&D
+        '''
+        if block['lines'][0] == 'Planning & Development Department':
+            block = extract_planning(block)
+            # setattr(block_index, 'type', 'planning')
+        
+        '''
+        Buildings & Safety
+        '''
+        if block['lines'][0] == 'Buildings and Safety':
+            block = buildings_and_safety(block)
+            
+            if 'Emergency Demolition' in block['string']:
+                setattr(block_index, 'type', 'emergency demolition')        
+    
+        '''
+        CLOSED SESSIONS
+        We can't get much from these.
+        '''
+        if 'closed session' in block_as_str:
+            setattr(block_index, 'type', 'closed session') 
+            block = extract_votes(block)
+    
+    
+        if 'Contract No.' in block_as_str:
             '''
-            INVOCATION
+            CONTRACTS
+            Having 'Contract No.' in the string means this might be a contract.
+            but it also could be a set of contracts being passed off to a 
+            committee for evaluation     
+            '''    
+            block = extract_contract(block)  
+            text[block_index] = block 
+        
+        elif ('RESOLVED, Th' in block_as_str) or ('Resolved, Th' in block_as_str):
             '''
-            if line == "Invocation":
-                invocation = extract_invocation(block)
+            GENERAL RESOLUTIONS
+            These have "RESOLVED, ..." in them.
+            '''
+        
+            block = extract_resolution(block) 
+        
+        else:                
+            '''
+            LINE BY LINE PARSING
+            After seeing what we can get from the block as one big string,
+            we go line by line to try to suss out its content.
+            '''
+            for line in block['lines']:
+        
+                '''
+                INVOCATION
+                '''
+                if line == "Invocation":
+                    invocation = extract_invocation(block)
             
             
-            if line.isupper():
-                # TODO 
-                pass
+                if line.isupper():
+                    # TODO 
+                    pass
+    return text
 
 
 # Save the stuff to Mongo
-connection = Connection('localhost', 27017)
-db = connection.council
-collection = db.blocks
-collection.remove({}) # clear out all the old data
+def save_to_mongo(text):
+    connection = Connection('localhost', 27017)
+    db = connection.council
+    collection = db.blocks
+    collection.remove({}) # clear out all the old data
 
-for block in text:
-    block = repair_text(block)
-    collection.insert(block)
+    for block in text:
+        block = repair_text(block)
+        collection.insert(block)
+
     
+def save_to_solr():
+    connection = Connection('localhost', 27017)
+    db = connection.council
+    collection = db.blocks
     
-# Save the stuff to solr
-batch = []
-everything = collection.find()
-for elt in everything:
-    batch.append({'id': elt['_id'], 'features': elt['string'] })
+    # Save the stuff to solr
+    batch = []
+    everything = collection.find()
+    BAD_MAP = ''.join([chr(x) for x in range(32) + [124]])
+    for elt in everything:
+        # first strip out control chars, which solr doesn't like
+        body = elt['string']
+        batch.append({'id': elt['_id'], 'features': body })
     
-s = solr.SolrConnection('http://localhost:8983/solr')
-s.delete(queries=['id:*'])
-s.add_many(batch)
+    s = solr.SolrConnection('http://localhost:8983/solr')
+    s.delete(queries=['*:*'])
+    s.add_many(batch)
    
    
-# Generate the mapping of members to slugs
-members = collection.distinct('yeas')
-db = connection.members
-for member in members:
-    record = {}
-    record[slugify(member)] = member
-    collection.insert(record)
+# Generate the mapping of members to slugs.
+# everyone votes yes at least once.
+def generate_member_slugs():
+    connection = Connection('localhost', 27017)
+    db = connection.council
+    collection = db.blocks
+    memberdb = db.members
+    
+    memberdb.remove({}) # clear out all the old data
+    
+    members = collection.distinct('yeas')
+    for member in members:
+        record = {}
+        record[slugify(member)] = member
+        memberdb.insert(record)
+
+
+# Run the actual import
+
+# text = first_pass(f, text)
+# text = block_string_generator(text)
+# text = scanner(text)
+# save_to_mongo(text)
+# save_to_solr()
+generate_member_slugs()

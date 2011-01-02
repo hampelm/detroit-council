@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load hash %}
+{% load humanize %}
+
+{% block title %}Detroit Council Docs{% endblock %}
+
+{% block content %}
+{% for block in blocks %}
+	<p>{{block}}</p>
+{% endfor %}
+{% endblock %}

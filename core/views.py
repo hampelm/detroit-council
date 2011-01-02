@@ -17,11 +17,24 @@ def connection():
     conn = Connection('localhost', 27017)
     db = conn.council
     blocks = db.blocks
-    return blocks
-    
+    return blocks    
 
 
 #======= Views
+def test(request):
+    response = {}
+    collection = connection()
+    
+    conn = Connection('localhost', 27017)
+    db = conn.council
+    members = db.members
+    
+    
+    blocks = members.find()
+
+    response['blocks'] = blocks
+    return render_to_response('test.html', response)
+
 def home(request):
     response = {}
     
@@ -79,8 +92,8 @@ def meeting(request, y, m, d):
     contracts = []
     for block in blocks:
         if block['type'] == 'contract':
-            contracts.append(block['dollars'][-1])
-            total_spent += block['dollars'][-1]
+            contracts.append(block['dollar_ammounts'][-1])
+            total_spent += block['dollar_ammounts'][-1]
 
     contracts.sort()
     response['contracts'] = contracts
@@ -91,9 +104,22 @@ def meeting(request, y, m, d):
     
 def item(request, item):
     collection = connection()
-    block = collection.find_one( {'_id': objectid.ObjectId(item)})
-    print block
-    return render_to_response('item.html', {'item':block })
+    response = {}
+    
+    id = objectid.ObjectId(item)
+    block = collection.find_one( {'_id': id})
+    response['item'] = block
+    
+    meeting_items = collection.find( {'date': block['date']} )
+    meeting_items_processed = []
+    for item in meeting_items:
+        if item['_id'] == id:
+            item['selected'] = True
+        
+        meeting_items_processed.append(item)
+    response['blocks'] = meeting_items_processed
+
+    return render_to_response('item.html', response)
     
     
 def page(request, page):

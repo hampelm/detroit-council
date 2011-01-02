@@ -75,7 +75,7 @@ tbody td {
     border-bottom: .5em solid white;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h4, h5, h6 {
     font-weight: normal;
     font-family: Baskerville, Cambria, Times, serif;
     
@@ -86,7 +86,7 @@ h1, h2, h3, h4, h5, h6 {
     margin-right:260px;
     font-size: 1.5em;
 }
-#container h2, #container h3 { margin-top: .75em; }
+#container h2 { margin-top: .75em; }
     #container h3,
     #container .info h2 { color:#360; }
     #container .info h2 { margin-top:0; }
@@ -94,26 +94,26 @@ h1, h2, h3, h4, h5, h6 {
     #container .flatpage p { margin-right:200px;}
     #container li { margin-left:15px;}
         form li { margin-left:0!important; }
+        
+h3 {
+    font-weight:normal;
+    margin-bottom:.75em;
+}
 
 #head { 
     position:relative; 
-    width: 960px;
+    width: 920px;
     margin: 0px auto;
 }
 #head h1{
     font-size: 36px;
     font-weight: normal;
     padding-bottom: 10px;
-    padding-left: 20px;
     margin-top: 5px;
 }
 #head h1 a {
-    
-    margin-right: 520px;
-    padding-left: 230px;
     display: block;
     padding-top: 20px;
-    border-bottom: 0px none;
     color: #360;
 }
 #head h1 a:hover {
@@ -249,8 +249,7 @@ label {
 
 
 .type {
-    padding:2px;
-    background:#ddd;
+    font-style:italic;
 }
 .pages { margin-top:1em; }
     .pages a { padding:5px; background:#eee; border-left:1px solid white;}
@@ -259,3 +258,22 @@ label {
 .cost {
     color:#E97F02;
 }
+
+#body { 
+    float:right;
+    width:590px;
+}
+#mnav {
+    float:left;
+    width:250px;
+}
+    #mnav li {
+        padding-left:0;
+        margin-left:0;
+        list-style:none;
+        padding:3px 5px;
+        border-bottom:1px solid #eee;
+    }
+    #mnav li.selected {
+        background:#fea;
+    }
