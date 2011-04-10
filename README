@@ -1,0 +1,11 @@
+This app is a first try at parsing the full pdf for the Detroit Journal of City Council. The Journal is an official record of all meeting proceedings, and is only available in hardcopy at the City Clerk's office. We requested a copy of the electronic version on February 3, 2010 and received a copy shortly after September 28, over 230 days later. 
+
+Unfortunately, the text version of the PDF is not easily parsable, so this app is not live online.
+
+Contact:
+Matt Hampel
+matthew.hampel@gmail.com
+
+To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
+
+You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
