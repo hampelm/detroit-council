@@ -5,42 +5,49 @@
 {% block title %}Detroit Council Docs{% endblock %}
 
 {% block content %}
-<h2>{{date}}</h2>
+<h2>Meeting:
+	{{ date.year }}
+	{{ date.month }}
+	{{ date.day }}
+</h2>
 
 <p>$<strong>{{total_spent|intcomma}}</strong> in contracts discussed</p>
 
 <table>	
 {% for block in blocks %}
-	<tr class="sep">
-		<td><a href="/item/{{block|hash:"_id"}}">{{block.lines.0}}</a></td>
-		<td>
+	<div class="sep">
+		<h3><a href="/item/{{block|hash:"_id"}}">{{block.lines.0}}</a></h3>
+		
+		<p>
 			{% if block.type != 'unknown' %}
 				<span class="type">{{block.type}}</span>
 			{% endif %}
-		</td>
-		<td>
 			{% if block.yeas or block.nays %}
-				<span class="score">{{block.yeas|length}} - {{block.nays|length}}</span>
+				<span class="score">
+					{% if block.yeas|length > block.nays|length %}
+						passes
+					{% endif %}
+					{{block.yeas|length}} - {{block.nays|length}}
+				</span>
 			{% endif %}
-		</td>
-	</tr>
+		</p>
+		
+		<p>
+		{% if block.cost %}
+			<span class="cost">${{block.cost|intcomma}}</span>
+		{% endif %}
+		{% if block.cost and block.address %}
+			with
+		{% endif %}
+		{% if block.address %}
+			{{block.address}}
+		{% endif %}
+		{% if block.details %}
+			{{details}}
+		{% endif %}
+		</p>
+	</div>
 	
-	<tr>		
-			<td colspan="3">
-				{% if block.cost %}
-					<span class="cost">${{block.cost|intcomma}}</span>
-				{% endif %}
-				{% if block.cost and block.address %}
-					with
-				{% endif %}
-				{% if block.address %}
-					{{block.address}}
-				{% endif %}
-				{% if block.details %}
-					{{details}}
-				{% endif %}
-				</td>
-	</tr>
 	
 	
 {% endfor %}

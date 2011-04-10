@@ -1,11 +1,42 @@
 {% extends "base.html" %}
 {% load hash %}
+{% load humanize %}
 
-{% block title %}Member{% endblock %}
+
+{% block title %}{{member}} {% endblock %}
 
 {% block content %}
 
-<table>
+<h2>Councilperson {{ member }}</h2>
+
+<h3>Nays</h3>
+<div id="mnav">
+	<ul>
+	{% for vote in nays %}
+	<li>
+		<a href="/item/{{vote|hash:"_id"}}">{{vote.lines.0}}</a>
+		{% if vote.type != 'unknown' %}
+			<br /><span class="type">{{vote.type}}</span>
+		{% endif %}
+		{% if vote.cost %}
+			<span class="cost">${{vote.cost|intcomma}}</span>
+		{% endif %}
+		{% if vote.cost and vote.address %}
+			with
+		{% endif %}
+		{% if vote.address %}
+			{{vote.address}}
+		{% endif %}
+		{% if vote.details %}
+			{{details}}
+		{% endif %}	
+		
+	</li>
+	{% endfor %}
+	</ul>
+</ul>
+
+<!--
 {% for block in blocks %}
 	<tr>
 		<td>{{block.type}}</td>
@@ -21,6 +52,6 @@
 	
 	</tr>
 {% endfor %}
-</table>
+-->
 
 {% endblock %}

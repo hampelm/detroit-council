@@ -60,7 +60,7 @@ USE_L10N = True
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-# ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'i9w7c^58xxel_w7swt5+2ol9^sy%e74u!%*5ezj0u+1l&2m2t^'

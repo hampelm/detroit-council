@@ -276,6 +276,7 @@ ADDRESSES_RE = re.compile(r"""(?x)
     )?
     """ % {'STREET_NAME_CAPTURE': STREET_NAME_CAPTURE, 'STREET_NAME_NOCAPTURE': STREET_NAME_NOCAPTURE})
 
+
 def parse_addresses(text):
     """
     Returns a list of all addresses found in the given string, as tuples in the
@@ -283,6 +284,7 @@ def parse_addresses(text):
     """
     # This assumes the last parenthetical grouping in ADDRESSES_RE is the city.
     return [(''.join(bits[:-1]), bits[-1]) for bits in ADDRESSES_RE.findall(text)]
+
 
 def tag_addresses(text, pre='<addr>', post='</addr>'):
     """

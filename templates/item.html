@@ -6,35 +6,75 @@
 
 {% block content %}
 <h1>
+	Meeting: 
 	{{ item.date.year }}
 	{{ item.date.month }}
 	{{ item.date.day }}
 </h1>
 
 <div id="body">
+	<h3 id="item-type"><strong>{{item.type}}</strong> from page <a href="{% url page item.page_number %}">{{item.page_number}}</a></h3>
+	<div id="details">
+	{% if item.contracts %}
+		<h3 id="related-contracts">Related contract{{item.contracts|pluralize}}: 
+			{% for contract in item.contracts %}
+				<a href="{% url contract contract %}">{{contract}}</a>
+			{% endfor %}
+		</h3>
+	{% endif %}
+	
+	<div id="votes">	
+		{% if item.yeas %}
+		<div id="yeas">
+			<strong>Yeas:</strong> 
+			{% for vote in item.yeas %}
+				<a href="{% url member vote|slugify %}">{{vote}}</a>
+			{% endfor %}
+		</div>
+		{% endif %}
 
-<h3 id="item-type">Item classified as: <strong>{{item.type}}</strong></h3>
+		{% if item.nays %}
+		<div id="nays">
+			<strong>Nays:</strong>
+			{% for vote in item.nays %}
+				<a href="{% url member vote|slugify %}">{{vote}}</a>
+			{% endfor %}
+		</div>
+		{% endif %}
+	</div>
+	</div>
+	
+	
+	<div id="sidebar">
+	
+	<div id="companies">
+		<h3>Companies</h3>
+		{% for entity in item.entities %}
+			{% if entity|hash:'_type' == 'Company' %}
+				<p>{{entity.name}} </p>
+			{% endif %}
+		{% endfor %}
+	</div>
+	
+	<div id="people">
+		<h3>People</h3>
+		{% for entity in item.entities %}
+			{% if entity|hash:'_type' == 'Person' %}
+				<p>{{entity.name}} </p>
+			{% endg %}
+		{% endfor %}
+	</div>
+	</div>
+	
+	
+	
+	
 
-<h3 id="jcc-page">JCC page: <a href="{% url page item.page_number %}">{{item.page_number}}</a></h3>
-
-<div id="votes">
-<h3>Votes:</h3>
-{% if item.yeas %}
-	<strong>Yeas:</strong> 
-	{% for vote in item.yeas %}
-		<a href="{% url member vote|slugify %}">{{vote}}</a>
+	<div id="original-text">
+	{% for line in item.lines %}
+		{{line}}<br />
 	{% endfor %}
-{% endif %}
-{% if item.nays %}
-	{% for vote in item.nays %}
-		<a href="{% url member vote|slugify %}">{{vote}}</a>
-	{% endfor %}
-{% endif %}
-</div>
-
-{% for line in item.lines %}
-	{{line}}<br />
-{% endfor %}
+	</div>
 </div>
 
 
@@ -42,27 +82,7 @@
 <div id="mnav">
 	<ul>
 	{% for item in blocks %}
-		<li class="{% if item.selected %}selected{% endif %}">
-			<a href="/item/{{item|hash:"_id"}}">{{item.lines.0}}</a>
-			{% if item.type != 'unknown' %}
-				<br /><span class="type">{{item.type}}</span>
-			{% endif %}
-			{% if item.cost %}
-				<span class="cost">${{item.cost|intcomma}}</span>
-			{% endif %}
-			{% if item.cost and item.address %}
-				with
-			{% endif %}
-			{% if item.address %}
-				{{item.address}}
-			{% endif %}
-			{% if item.details %}
-				{{details}}
-			{% endif %}
-			
-			
-			
-		</li>
+		{% include "item_list.html" %}
 	{% endfor %}
 	</ul>
 </ul>

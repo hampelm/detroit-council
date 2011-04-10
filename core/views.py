@@ -18,6 +18,13 @@ def connection():
     db = conn.council
     blocks = db.blocks
     return blocks    
+    
+def member_slugs_mapping():
+    conn = Connection('localhost', 27017)
+    db = conn.council
+    memberdb = db.members
+    mappings = memberdb.find()
+    return mappings[0]
 
 
 #======= Views
@@ -34,6 +41,7 @@ def test(request):
 
     response['blocks'] = blocks
     return render_to_response('test.html', response)
+
 
 def home(request):
     response = {}
@@ -56,7 +64,7 @@ def search(request, q=""):
         form = SearchForm(request.GET)
         if form.is_valid():
             s = solr.SolrConnection('http://localhost:8983/solr')
-            raw_results = s.query('features:' + str(form['q']), highlight=True, fields="features,id,snippets")
+            raw_results = s.query(str(form.cleaned_data['q']), highlight=True, fields="features,id,snippets")
             results = [result for result in raw_results]
             full_objects = []
 
@@ -64,7 +72,7 @@ def search(request, q=""):
                 obj = collection.find_one( {'_id': objectid.ObjectId(elt['id'])})
                 full_objects.append(obj)
                 
-                
+            s.close() # TODO make sure this closes the connection to Solr.
             return render_to_response('search.html', {'results':full_objects})
             
     return home(request)
@@ -72,9 +80,20 @@ def search(request, q=""):
 
 def member(request, member):
     collection = connection()
+    member_slugs = member_slugs_mapping()
+    response = {}
+    member = member_slugs[member]
+    response['member'] = member
+    
     blocks = collection.find( {'$or': [ {'yeas':member}, {'nays':member}], 'type':'contract'}, sort=[('date', ASCENDING)] )
     
-    return render_to_response('member.html', {'blocks': blocks, 'member':member})
+    yeas = collection.find(  {'$or': [ {'yeas':member}] }, sort=[('date', ASCENDING)]  )
+    
+    nays = collection.find(  {'$or': [ {'nays':member}] }, sort=[('date', ASCENDING)]  )
+    response['yeas'] = yeas
+    response['nays'] = nays
+    
+    return render_to_response('member.html', response)
     
     
 def meeting(request, y, m, d):
@@ -108,6 +127,14 @@ def item(request, item):
     
     id = objectid.ObjectId(item)
     block = collection.find_one( {'_id': id})
+    
+    
+    if not 'entities' in block:
+        print "calculating"
+        # calais = Calais(settings.CALAIS, submitter="hello world")
+        # block['entities'] = calais.analyze(block['string']).entities
+        # collection.save(block)
+    
     response['item'] = block
     
     meeting_items = collection.find( {'date': block['date']} )
@@ -138,12 +165,14 @@ def page(request, page):
     response['blocks'] = blocks
     
     return render_to_response('page.html', response)
-    
+
     
 def contract(request, contract):
-
+    response = {}
     collection = connection()
     blocks = collection.find( { 'contracts':contract}, sort=[('date', ASCENDING)] )
+    
+    # get last block and display if it was approved or not
    
     calais = Calais(settings.CALAIS, submitter="hello world")
     
@@ -151,5 +180,7 @@ def contract(request, contract):
     for block in blocks:
         block['entities'] = calais.analyze(block['string']).entities
         newbloks.append(block)
-    
-    return render_to_response('item.html', {'blocks': newbloks})
+        
+    response['items'] = newbloks
+    response['contract'] = contract
+    return render_to_response('contract.html', response)

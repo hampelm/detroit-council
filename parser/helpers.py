@@ -74,13 +74,20 @@ def extract_votes(block):
         if member in nays:
             no_votes.append(member)
     '''
-    votes_start = block['string'].find('dopted as follows:')
+    
+    string = block['string']
+    if "Adopted as follows:" in string:
+        block['adopted'] = True
+    if "Not adopted as follows:" in string:
+        block['adopted'] = False
+    
+    votes_start = string.find('dopted as follows:')
     if votes_start == -1:
         # there is no vote in this block
         return block
     
     # Cut out some excess text
-    votes_text = block['string'][votes_start:]
+    votes_text = string[votes_start:]
     votes_text = name_cleanup(votes_text)
 
     # Figure out where the yeas and nays start

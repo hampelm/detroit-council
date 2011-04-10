@@ -345,10 +345,12 @@ def generate_member_slugs():
     memberdb.remove({}) # clear out all the old data
     
     members = collection.distinct('yeas')
+    record = {}
+    
     for member in members:
-        record = {}
         record[slugify(member)] = member
-        memberdb.insert(record)
+    
+    memberdb.insert(record)
 
 
 # Run the actual import

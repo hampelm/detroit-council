@@ -46,11 +46,11 @@ print "Mixed votes passed"
 
         
 block3 = {}
-block3['string'] = 'INTERNAL OPERATIONS STANDING COMMITTEE The following Finance Department/ Purchasing Division Contracts were approved through the recess procedure for the week of December 15, 2008. Finance Department Purchasing Division December 11, 2008 Honorable City Council: The Purchasing Division of the Finance Department recommends a Contract with the following firms or persons: 2782141 -- 100% City Funding -- Heavy Duty Truck Repair -- RFQ. #27435, Par. #2884 -- All Type Truck & Trailer Repair (Supplier 3 of 3), 23660 Sherwood, Warren, MI 48091 -- Contract period: December 15, 2008 through December 14, 2010, with two (2)-one (1) year renewal options -- (2) Items -- Unit prices range from: $49.50/hr. to $49.50/hr. -- Lowest acceptable bid -- Estimated cost: $158,400.00/2 years. GENERAL SERVICES. Respectfully submitted, MEDINA NOOR Director Finance Dept./Purchasing Division By Council Member Kenyatta: Resolved, That Contract No. 2782141 referred to in the foregoing communication dated December 11, 2008 be hereby and is approved. Adopted as follows: Yeas -- Council Members S. Cockrel, Collins, Jones, Kenyatta, Tinsley-Talabi, Watson, and President Conyers -- 7. Nays -- None.'
+block3['string'] = 'Finance Department Purchasing Division April 28, 2009 Honorable City Council: The Purchasing Division of the Finance Department recommends a Contract with the following firms or persons: 2778457 -- 100% State Funding -- To provide Job Readiness/Job Search -- Foundation for Behavioral Resources, 600 South Lincoln Street, Augusta, MI 49012 -- Contract period: October 1, 2008 through September 30, 2009 -- Contract amount not to exceed: $900,000.00. DWDD. Respectfully submitted, MEDINA NOOR Director Finance Dept./Purchasing Division By Council Member Collins: Resolved, That Contract No. 2778457 referred to in the foregoing communication dated April 28, 2009, be hereby and is approved. Not adopted as follows: Yeas -- Council Members S. Cockrel, Collins, Reeves, and Tinsley-Talabi -- 4. Nays -- Council Members Jones, Kenyatta, Watson, and President Conyers -- 4.'
 
 block = extract_votes(block3)
-yeas = ['S. Cockrel', 'Collins', 'Jones', 'Kenyatta', 'Tinsley-Talabi', 'Watson', 'Conyers']
-nays = []
+yeas = ['S. Cockrel', 'Collins', 'Reeves', 'Tinsley-Talabi']
+nays = ['Jones', 'Kenyatta', 'Watson', 'Conyers']
 
 for person in block['nays']:
     if person not in nays:
@@ -62,4 +62,4 @@ for person in block['yeas']:
         print person
         assert(False)
 
-print "No nays 2 passed"
+print "Mixed votes 2 passed"
