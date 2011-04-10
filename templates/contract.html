@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load hash %}
+{% load humanize %}
+
+{% block title %}Detroit Council Docs{% endblock %}
+
+{% block content %}
+<h2>Contract {{contract}}</h2>
+<div id="body">
+	{% for item in items %}
+		{% for entity in item.entities %}
+			{% if entity|hash:"_type" == "Person" %}
+				{{ entity.name }}<br />
+				{{entity|hash:"_type"}}<br /><br />
+			{% endif %}
+			
+			{% if entity|hash:"_type" == "Company" %}
+				{{ entity.name }}<br />
+				{{entity|hash:"_type"}}<br /><br />
+			{% endif %}
+			
+			{% if entity|hash:"_type" == "Organization" %}
+				{{ entity.name }}<br />
+				{{entity|hash:"_type"}}<br /><br />
+			{% endif %}
+			
+		{% endfor %}
+	{% endfor %}
+</div>
+
+
+
+<div id="mnav">
+	<ul>
+	{% for item in items %}
+		{% include "item_list.html" %}
+	{% endfor %}
+	</ul>
+</ul>
+{% endblock %}

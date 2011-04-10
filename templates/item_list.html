@@ -1,0 +1,21 @@
+{% load hash %}
+{% load humanize %}
+
+<li class="{% if item.selected %}selected{% endif %}">
+	<a href="/item/{{item|hash:"_id"}}">{{item.lines.0}}</a>
+	{% if item.type != 'unknown' %}
+		<br /><span class="type">{{item.type}}</span>
+	{% endif %}
+	{% if item.cost %}
+		<span class="cost">${{item.cost|intcomma}}</span>
+	{% endif %}
+	{% if item.cost and item.address %}
+		with
+	{% endif %}
+	{% if item.address %}
+		{{item.address}}
+	{% endif %}
+	{% if item.details %}
+		{{details}}
+	{% endif %}	
+</li>
